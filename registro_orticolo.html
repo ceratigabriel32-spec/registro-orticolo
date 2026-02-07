@@ -1,0 +1,2213 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌱 Registro Orticolo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --verde-dark: #1a5c2a;
+            --verde-mid: #2d8a4e;
+            --verde-light: #4caf50;
+            --verde-pale: #e8f5e9;
+            --verde-bg: #f1f8e9;
+            --rosso: #f44336;
+            --blu: #2196F3;
+            --arancione: #ff9800;
+            --bianco: #ffffff;
+            --grigio-chiaro: #f5f5f5;
+            --grigio: #757575;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--verde-bg);
+            color: #333;
+        }
+
+        /* Header */
+        #header {
+            background: linear-gradient(135deg, var(--verde-dark) 0%, var(--verde-mid) 100%);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        #cloudStatus {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255,255,255,0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--rosso);
+        }
+
+        .status-dot.connected {
+            background: var(--verde-light);
+        }
+
+        /* Layout */
+        #app {
+            display: flex;
+            min-height: calc(100vh - 70px);
+        }
+
+        #sidebar {
+            width: 250px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .nav-item:hover {
+            background: var(--verde-pale);
+            border-left-color: var(--verde-light);
+        }
+
+        .nav-item.active {
+            background: var(--verde-pale);
+            border-left-color: var(--verde-dark);
+            font-weight: 600;
+            color: var(--verde-dark);
+        }
+
+        #content {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--verde-dark);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--verde-mid) 0%, var(--verde-light) 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        /* Forms */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-weight: 500;
+            color: var(--verde-dark);
+        }
+
+        input, select, textarea {
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--verde-light);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--verde-light);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--verde-mid);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-danger {
+            background: var(--rosso);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .btn-info {
+            background: var(--blu);
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #1976D2;
+        }
+
+        .btn-warning {
+            background: var(--arancione);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #f57c00;
+        }
+
+        .btn-small {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: var(--verde-dark);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:hover {
+            background: var(--verde-pale);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-danger {
+            background: #ffebee;
+            color: var(--rosso);
+        }
+
+        .badge-success {
+            background: #e8f5e9;
+            color: var(--verde-dark);
+        }
+
+        /* Checkbox Grid */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .checkbox-item {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .checkbox-item:hover {
+            border-color: var(--verde-light);
+        }
+
+        .checkbox-item input[type="checkbox"]:checked + label {
+            color: var(--verde-dark);
+            font-weight: 600;
+        }
+
+        input[type="checkbox"]:checked ~ .checkbox-item,
+        .checkbox-item.checked {
+            border-color: var(--verde-light);
+            background: var(--verde-pale);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 2000;
+            animation: slideIn 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            min-width: 300px;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--verde-light);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--rosso);
+        }
+
+        .toast.info {
+            border-left: 4px solid var(--blu);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateX(400px);
+            }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--verde-dark);
+            margin-bottom: 1rem;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--grigio);
+        }
+
+        .empty-state .emoji {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid var(--blu);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Mobile Bottom Nav */
+        #bottomNav {
+            display: none;
+        }
+
+        /* Pages */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Dynamic Rows */
+        .dynamic-row {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            margin-bottom: 0.5rem;
+        }
+
+        .dynamic-row .form-group {
+            flex: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            #sidebar {
+                display: none;
+            }
+
+            #bottomNav {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+                z-index: 1000;
+            }
+
+            .bottom-nav-item {
+                padding: 0.8rem;
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.3s;
+                border-top: 3px solid transparent;
+                font-size: 0.75rem;
+            }
+
+            .bottom-nav-item.active {
+                border-top-color: var(--verde-dark);
+                background: var(--verde-pale);
+                color: var(--verde-dark);
+            }
+
+            .bottom-nav-item .emoji {
+                display: block;
+                font-size: 1.3rem;
+                margin-bottom: 0.2rem;
+            }
+
+            #content {
+                padding: 1rem;
+                padding-bottom: 80px;
+            }
+
+            #header h1 {
+                font-size: 1.3rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .checkbox-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Utility Classes */
+        .mb-1 { margin-bottom: 1rem; }
+        .mb-2 { margin-bottom: 2rem; }
+        .mt-1 { margin-top: 1rem; }
+        .text-center { text-align: center; }
+        .flex { display: flex; }
+        .gap-1 { gap: 1rem; }
+        .justify-between { justify-content: space-between; }
+        .align-center { align-items: center; }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1>🌱 Registro Orticolo</h1>
+        <div id="cloudStatus">
+            <span class="status-dot"></span>
+            <span id="cloudStatusText">Cloud off</span>
+        </div>
+    </div>
+
+    <div id="app">
+        <div id="sidebar">
+            <div class="nav-item active" data-page="dashboard">📊 Dashboard</div>
+            <div class="nav-item" data-page="luoghi">📍 Luoghi</div>
+            <div class="nav-item" data-page="colture">🌿 Colture Attive</div>
+            <div class="nav-item" data-page="prodotti">🧪 Prodotti Base</div>
+            <div class="nav-item" data-page="ricette">📝 Ricette</div>
+            <div class="nav-item" data-page="trattamenti">💉 Trattamenti</div>
+            <div class="nav-item" data-page="trattamento-rapido">⚡ Trattamento Rapido</div>
+            <div class="nav-item" data-page="registro">📋 Registro Giornaliero</div>
+            <div class="nav-item" data-page="concimazioni">🌾 Concimazioni</div>
+            <div class="nav-item" data-page="raccolto">🧺 Raccolto</div>
+            <div class="nav-item" data-page="riepilogo">📈 Riepilogo</div>
+            <div class="nav-item" data-page="impostazioni">⚙️ Impostazioni</div>
+        </div>
+
+        <div id="bottomNav">
+            <div class="bottom-nav-item active" data-page="dashboard"><span class="emoji">📊</span>Dashboard</div>
+            <div class="bottom-nav-item" data-page="colture"><span class="emoji">🌿</span>Colture</div>
+            <div class="bottom-nav-item" data-page="trattamenti"><span class="emoji">💉</span>Trattamenti</div>
+            <div class="bottom-nav-item" data-page="impostazioni"><span class="emoji">⚙️</span>Altro</div>
+        </div>
+
+        <div id="content"></div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle"></div>
+            <div id="modalBody"></div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" id="modalConfirm">Conferma</button>
+                <button class="btn" id="modalCancel" style="background: #e0e0e0;">Annulla</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ DEFAULT DATA ============
+        const DEFAULT_DATA = {
+            luoghi: ['Serra 1','Serra 2','Serra 3','Serra 4','Serra 5','campo aperto','asparagiaia','vaso','bins'],
+            colture: [
+                {id:'C001',nome:'Zucchine',varieta:'President',luogo:'Serra 1',semina:'2026-03-10',giorni:50,inizioRaccolta:''},
+                {id:'C002',nome:'Meloni',varieta:'Altair',luogo:'Serra 2',semina:'2025-02-01',giorni:90,inizioRaccolta:''},
+                {id:'C003',nome:'Fagioli',varieta:'Mezza Rama',luogo:'Serra 3',semina:'2025-03-10',giorni:60,inizioRaccolta:''},
+                {id:'C004',nome:'Pomodori',varieta:'',luogo:'Serra 3',semina:'2025-02-20',giorni:80,inizioRaccolta:''},
+                {id:'C005',nome:'Insalata',varieta:'',luogo:'Serra 4',semina:'2025-01-05',giorni:40,inizioRaccolta:''},
+                {id:'C006',nome:'Peperoni',varieta:'',luogo:'Serra 1',semina:'2025-02-10',giorni:90,inizioRaccolta:''},
+                {id:'C007',nome:'Cetrioli',varieta:'',luogo:'Serra 5',semina:'2025-02-05',giorni:55,inizioRaccolta:''},
+                {id:'C008',nome:'Piselli',varieta:'',luogo:'Serra 1, Serra 2',semina:'',giorni:0,inizioRaccolta:''}
+            ],
+            prodotti: [
+                {nome:'Rame Bio',principio:'Ossicloruro di rame',tipo:'Fungicida',carenza:3},
+                {nome:'Zolfo 80',principio:'Zolfo',tipo:'Fungicida',carenza:3},
+                {nome:'Piretro Naturale',principio:'Piretrine',tipo:'Insetticida',carenza:1},
+                {nome:'Olio di Neem',principio:'Azadiractina',tipo:'Insetticida',carenza:3},
+                {nome:'Bacillus Bio',principio:'Bacillus thuringiensis',tipo:'Insetticida',carenza:0},
+                {nome:'Sapone Molle',principio:'Sali potassici acidi grassi',tipo:'Insetticida',carenza:0},
+                {nome:'Propoli',principio:'Propoli',tipo:'Fungicida',carenza:3},
+                {nome:'Olio di arancio',principio:'Arancia',tipo:'Mix',carenza:0}
+            ],
+            ricette: [
+                {nome:'Mix Prevenzione',componenti:[{prodotto:'Rame Bio',dose:4},{prodotto:'Zolfo 80',dose:5}]},
+                {nome:'Mix Anti-Afidi',componenti:[{prodotto:'Olio di Neem',dose:2},{prodotto:'Sapone Molle',dose:3}]},
+                {nome:'Trattamento Completo',componenti:[{prodotto:'Rame Bio',dose:3},{prodotto:'Piretro Naturale',dose:1.5},{prodotto:'Propoli',dose:2}]}
+            ],
+            trattamenti: [
+                {data:'2026-02-06',num:1,coltura:'Zucchine',prodotto:'Mix Prevenzione',motivo:'prevenzione',tipo:'Ricetta',operatore:'martina'},
+                {data:'2026-02-06',num:2,coltura:'Meloni',prodotto:'Mix Prevenzione',motivo:'prevenzione',tipo:'Ricetta',operatore:'martina'},
+                {data:'2026-02-06',num:3,coltura:'Fagioli',prodotto:'Mix Prevenzione',motivo:'prevenzione',tipo:'Ricetta',operatore:'martina'},
+                {data:'2026-02-06',num:4,coltura:'Pomodori',prodotto:'Mix Prevenzione',motivo:'prevenzione',tipo:'Ricetta',operatore:'martina'},
+                {data:'2026-02-06',num:5,coltura:'Insalata',prodotto:'Mix Prevenzione',motivo:'prevenzione',tipo:'Ricetta',operatore:'martina'},
+                {data:'2026-02-06',num:6,coltura:'Peperoni',prodotto:'Mix Prevenzione',motivo:'prevenzione',tipo:'Ricetta',operatore:'martina'},
+                {data:'2026-02-06',num:7,coltura:'Cetrioli',prodotto:'Mix Prevenzione',motivo:'prevenzione',tipo:'Ricetta',operatore:'martina'}
+            ],
+            registro: [
+                {data:'2025-02-01',coltura:'Zucchine',tipo:'Semina',descrizione:'Semina in vasetti',ore:2,note:''},
+                {data:'2025-02-05',coltura:'Zucchine',tipo:'Irrigazione',descrizione:'Innaffiatura manuale',ore:0.5,note:''}
+            ],
+            concimazioni: [{data:'2025-02-01',coltura:'Zucchine',prodotto:'Stallatico maturo',quantita:200,metodo:'Incorporamento',note:''}],
+            raccolto: [{data:'2025-04-20',coltura:'Zucchine',peso:12.5,destinazione:'Mercato',prezzo:2.50,note:''}]
+        };
+
+        // ============ GLOBAL STATE ============
+        let DB = null;
+        let cloudConfig = null;
+        let autoSyncTimeout = null;
+
+        // ============ CORE FUNCTIONS ============
+        function loadDB() {
+            const stored = localStorage.getItem('registroOrticolo_v2');
+            if (stored) {
+                try {
+                    DB = JSON.parse(stored);
+                } catch (e) {
+                    DB = JSON.parse(JSON.stringify(DEFAULT_DATA));
+                    saveDB();
+                }
+            } else {
+                DB = JSON.parse(JSON.stringify(DEFAULT_DATA));
+                saveDB();
+            }
+        }
+
+        function saveDB() {
+            localStorage.setItem('registroOrticolo_v2', JSON.stringify(DB));
+            scheduleAutoSync();
+        }
+
+        function loadCloudConfig() {
+            const stored = localStorage.getItem('registroOrticolo_cloud');
+            if (stored) {
+                try {
+                    cloudConfig = JSON.parse(stored);
+                    updateCloudStatus(true);
+                } catch (e) {
+                    cloudConfig = null;
+                }
+            }
+        }
+
+        function saveCloudConfig() {
+            if (cloudConfig) {
+                localStorage.setItem('registroOrticolo_cloud', JSON.stringify(cloudConfig));
+            } else {
+                localStorage.removeItem('registroOrticolo_cloud');
+            }
+        }
+
+        function updateCloudStatus(connected) {
+            const dot = document.querySelector('.status-dot');
+            const text = document.getElementById('cloudStatusText');
+            if (connected) {
+                dot.classList.add('connected');
+                text.textContent = 'Cloud ✓';
+            } else {
+                dot.classList.remove('connected');
+                text.textContent = 'Cloud off';
+            }
+        }
+
+        // ============ TOAST ============
+        function toast(message, type = 'success') {
+            const toastEl = document.createElement('div');
+            toastEl.className = `toast ${type}`;
+            toastEl.innerHTML = `
+                <span style="font-size: 1.5rem;">${type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ'}</span>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(toastEl);
+            setTimeout(() => {
+                toastEl.style.animation = 'fadeOut 0.3s ease-out';
+                setTimeout(() => toastEl.remove(), 300);
+            }, 3000);
+        }
+
+        // ============ MODAL ============
+        function showModal(title, body, onConfirm) {
+            const modal = document.getElementById('modal');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').innerHTML = body;
+            modal.classList.add('active');
+            
+            document.getElementById('modalConfirm').onclick = () => {
+                modal.classList.remove('active');
+                if (onConfirm) onConfirm();
+            };
+            
+            document.getElementById('modalCancel').onclick = () => {
+                modal.classList.remove('active');
+            };
+        }
+
+        // ============ NAVIGATION ============
+        function navigateTo(pageName) {
+            document.querySelectorAll('.nav-item, .bottom-nav-item').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            document.querySelectorAll(`[data-page="${pageName}"]`).forEach(el => {
+                el.classList.add('active');
+            });
+
+            renderPage(pageName);
+        }
+
+        // ============ DATE UTILS ============
+        function formatDate(isoDate) {
+            if (!isoDate) return '';
+            const [y, m, d] = isoDate.split('-');
+            return `${d}/${m}/${y}`;
+        }
+
+        function parseDate(ddmmyyyy) {
+            if (!ddmmyyyy) return '';
+            const [d, m, y] = ddmmyyyy.split('/');
+            return `${y}-${m}-${d}`;
+        }
+
+        function addDays(isoDate, days) {
+            if (!isoDate) return '';
+            const date = new Date(isoDate);
+            date.setDate(date.getDate() + days);
+            return date.toISOString().split('T')[0];
+        }
+
+        function isDateInFuture(isoDate) {
+            if (!isoDate) return false;
+            const date = new Date(isoDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            return date >= today;
+        }
+
+        // ============ GENERATE ID ============
+        function generateColturaId() {
+            const maxNum = DB.colture.reduce((max, c) => {
+                const num = parseInt(c.id.substring(1));
+                return num > max ? num : max;
+            }, 0);
+            return 'C' + String(maxNum + 1).padStart(3, '0');
+        }
+
+        // ============ POPULATE SELECTS ============
+        function populateSelects() {
+            document.querySelectorAll('select[name="coltura"]').forEach(sel => {
+                sel.innerHTML = '<option value="">Seleziona...</option>' +
+                    DB.colture.map(c => `<option value="${c.nome}">${c.nome} - ${c.varieta || 'N/A'} (${c.luogo})</option>`).join('');
+            });
+
+            document.querySelectorAll('select[name="luogo"]').forEach(sel => {
+                sel.innerHTML = '<option value="">Seleziona...</option>' +
+                    DB.luoghi.map(l => `<option value="${l}">${l}</option>`).join('');
+            });
+        }
+
+        // ============ CLOUD SYNC ============
+        async function connectCloud(apiKey) {
+            try {
+                const response = await fetch('https://api.jsonbin.io/v3/b', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': apiKey,
+                        'X-Bin-Name': 'registro-orticolo',
+                        'X-Bin-Private': 'true'
+                    },
+                    body: JSON.stringify(DB)
+                });
+
+                if (!response.ok) {
+                    // Try to get existing bin
+                    const bins = await fetch('https://api.jsonbin.io/v3/c/collections', {
+                        headers: { 'X-Master-Key': apiKey }
+                    });
+                    
+                    if (bins.ok) {
+                        const data = await bins.json();
+                        // Use first bin or create new
+                        cloudConfig = { apiKey, binId: null };
+                        saveCloudConfig();
+                        updateCloudStatus(true);
+                        toast('Connesso al cloud!', 'success');
+                        return;
+                    }
+                    throw new Error('Errore connessione');
+                }
+
+                const data = await response.json();
+                cloudConfig = { apiKey, binId: data.metadata.id };
+                saveCloudConfig();
+                updateCloudStatus(true);
+                toast('Cloud connesso!', 'success');
+            } catch (e) {
+                toast('Errore connessione cloud: ' + e.message, 'error');
+            }
+        }
+
+        function disconnectCloud() {
+            cloudConfig = null;
+            saveCloudConfig();
+            updateCloudStatus(false);
+            toast('Cloud disconnesso', 'info');
+        }
+
+        async function pushToCloud() {
+            if (!cloudConfig || !cloudConfig.binId) {
+                toast('Cloud non configurato', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${cloudConfig.binId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': cloudConfig.apiKey
+                    },
+                    body: JSON.stringify(DB)
+                });
+
+                if (!response.ok) throw new Error('Push failed');
+                toast('Dati caricati sul cloud', 'success');
+            } catch (e) {
+                toast('Errore push cloud: ' + e.message, 'error');
+            }
+        }
+
+        async function pullFromCloud() {
+            if (!cloudConfig || !cloudConfig.binId) {
+                toast('Cloud non configurato', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${cloudConfig.binId}/latest`, {
+                    headers: { 'X-Master-Key': cloudConfig.apiKey }
+                });
+
+                if (!response.ok) throw new Error('Pull failed');
+                const data = await response.json();
+                DB = data.record;
+                saveDB();
+                populateSelects();
+                navigateTo('dashboard');
+                toast('Dati scaricati dal cloud', 'success');
+            } catch (e) {
+                toast('Errore pull cloud: ' + e.message, 'error');
+            }
+        }
+
+        function scheduleAutoSync() {
+            if (autoSyncTimeout) clearTimeout(autoSyncTimeout);
+            if (cloudConfig && cloudConfig.binId) {
+                autoSyncTimeout = setTimeout(() => {
+                    pushToCloud();
+                }, 2000);
+            }
+        }
+
+        // ============ EXPORT/IMPORT ============
+        function exportJSON() {
+            const dataStr = JSON.stringify(DB, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `registro_orticolo_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            toast('Dati esportati!', 'success');
+        }
+
+        function importJSON(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    DB = imported;
+                    saveDB();
+                    populateSelects();
+                    navigateTo('dashboard');
+                    toast('Dati importati!', 'success');
+                } catch (err) {
+                    toast('Errore importazione: file non valido', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function resetAll() {
+            showModal(
+                'Conferma cancellazione',
+                '<p>Sei sicuro di voler cancellare TUTTI i dati? Questa operazione non può essere annullata.</p>',
+                () => {
+                    DB = JSON.parse(JSON.stringify(DEFAULT_DATA));
+                    saveDB();
+                    populateSelects();
+                    navigateTo('dashboard');
+                    toast('Tutti i dati sono stati cancellati', 'info');
+                }
+            );
+        }
+
+        // ============ PAGE RENDERERS ============
+        function renderPage(pageName) {
+            const content = document.getElementById('content');
+            
+            switch(pageName) {
+                case 'dashboard': renderDashboard(); break;
+                case 'luoghi': renderLuoghi(); break;
+                case 'colture': renderColture(); break;
+                case 'prodotti': renderProdotti(); break;
+                case 'ricette': renderRicette(); break;
+                case 'trattamenti': renderTrattamenti(); break;
+                case 'trattamento-rapido': renderTrattamentoRapido(); break;
+                case 'registro': renderRegistro(); break;
+                case 'concimazioni': renderConcimazioni(); break;
+                case 'raccolto': renderRaccolto(); break;
+                case 'riepilogo': renderRiepilogo(); break;
+                case 'impostazioni': renderImpostazioni(); break;
+            }
+        }
+
+        // ============ DASHBOARD ============
+        function renderDashboard() {
+            const totalKg = DB.raccolto.reduce((sum, r) => sum + r.peso, 0);
+            const totalRicavo = DB.raccolto.reduce((sum, r) => sum + (r.peso * r.prezzo), 0);
+            const totalOre = DB.registro.reduce((sum, r) => sum + r.ore, 0);
+            
+            const today = new Date().toISOString().split('T')[0];
+            
+            // Carenze attive
+            const carenzeAttive = DB.trattamenti.filter(t => {
+                let carenza = 0;
+                if (t.tipo === 'Prodotto') {
+                    const prod = DB.prodotti.find(p => p.nome === t.prodotto);
+                    if (prod) carenza = prod.carenza;
+                } else if (t.tipo === 'Ricetta') {
+                    const ric = DB.ricette.find(r => r.nome === t.prodotto);
+                    if (ric) {
+                        carenza = Math.max(...ric.componenti.map(c => {
+                            const p = DB.prodotti.find(pr => pr.nome === c.prodotto);
+                            return p ? p.carenza : 0;
+                        }));
+                    }
+                }
+                const fineCarenza = addDays(t.data, carenza);
+                return isDateInFuture(fineCarenza);
+            });
+
+            // Prossime raccolte
+            const prossimeRaccolte = DB.colture
+                .filter(c => c.semina && c.giorni > 0)
+                .map(c => {
+                    const raccoltaPrevista = addDays(c.semina, c.giorni);
+                    return { ...c, raccoltaPrevista };
+                })
+                .filter(c => isDateInFuture(c.raccoltaPrevista))
+                .sort((a, b) => a.raccoltaPrevista.localeCompare(b.raccoltaPrevista));
+
+            document.getElementById('content').innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Colture Attive</div>
+                        <div class="stat-value">${DB.colture.length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Trattamenti</div>
+                        <div class="stat-value">${DB.trattamenti.length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Concimazioni</div>
+                        <div class="stat-value">${DB.concimazioni.length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Kg Raccolto</div>
+                        <div class="stat-value">${totalKg.toFixed(1)}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Ricavo Totale €</div>
+                        <div class="stat-value">${totalRicavo.toFixed(2)}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Ore Lavoro</div>
+                        <div class="stat-value">${totalOre.toFixed(1)}</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">⚠️ Carenze Attive</div>
+                    ${carenzeAttive.length === 0 ? '<div class="empty-state"><div class="emoji">✓</div><p>Nessuna carenza attiva</p></div>' : `
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Coltura</th>
+                                        <th>Prodotto</th>
+                                        <th>Fine Carenza</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${carenzeAttive.map(t => {
+                                        let carenza = 0;
+                                        if (t.tipo === 'Prodotto') {
+                                            const prod = DB.prodotti.find(p => p.nome === t.prodotto);
+                                            if (prod) carenza = prod.carenza;
+                                        } else {
+                                            const ric = DB.ricette.find(r => r.nome === t.prodotto);
+                                            if (ric) {
+                                                carenza = Math.max(...ric.componenti.map(c => {
+                                                    const p = DB.prodotti.find(pr => pr.nome === c.prodotto);
+                                                    return p ? p.carenza : 0;
+                                                }));
+                                            }
+                                        }
+                                        const fineCarenza = addDays(t.data, carenza);
+                                        return `
+                                            <tr>
+                                                <td>${formatDate(t.data)}</td>
+                                                <td>${t.coltura}</td>
+                                                <td>${t.prodotto}</td>
+                                                <td><span class="badge badge-danger">${formatDate(fineCarenza)}</span></td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `}
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📅 Prossime Raccolte</div>
+                    ${prossimeRaccolte.length === 0 ? '<div class="empty-state"><div class="emoji">🌱</div><p>Nessuna raccolta prevista</p></div>' : `
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Coltura</th>
+                                        <th>Varietà</th>
+                                        <th>Luogo</th>
+                                        <th>Raccolta Prevista</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${prossimeRaccolte.map(c => `
+                                        <tr>
+                                            <td>${c.nome}</td>
+                                            <td>${c.varieta || '-'}</td>
+                                            <td>${c.luogo}</td>
+                                            <td><span class="badge badge-success">${formatDate(c.raccoltaPrevista)}</span></td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+
+        // ============ LUOGHI ============
+        function renderLuoghi() {
+            document.getElementById('content').innerHTML = `
+                <div class="card">
+                    <div class="card-title">📍 Gestione Luoghi</div>
+                    <form id="formLuogo" class="form-grid">
+                        <div class="form-group">
+                            <label>Nome Luogo</label>
+                            <input type="text" name="nome" required>
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: flex-end;">
+                            <button type="submit" class="btn btn-primary">Aggiungi Luogo</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Nome</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${DB.luoghi.map((l, i) => `
+                                    <tr>
+                                        <td>${i + 1}</td>
+                                        <td>${l}</td>
+                                        <td><button class="btn btn-danger btn-small" onclick="deleteLuogo(${i})">🗑️ Elimina</button></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('formLuogo').onsubmit = (e) => {
+                e.preventDefault();
+                const nome = e.target.nome.value.trim();
+                if (nome && !DB.luoghi.includes(nome)) {
+                    DB.luoghi.push(nome);
+                    saveDB();
+                    populateSelects();
+                    renderLuoghi();
+                    toast('Luogo aggiunto!', 'success');
+                } else {
+                    toast('Luogo già esistente', 'error');
+                }
+            };
+        }
+
+        function deleteLuogo(index) {
+            showModal('Conferma', `Eliminare il luogo "${DB.luoghi[index]}"?`, () => {
+                DB.luoghi.splice(index, 1);
+                saveDB();
+                populateSelects();
+                renderLuoghi();
+                toast('Luogo eliminato', 'info');
+            });
+        }
+
+        // ============ COLTURE ============
+        function renderColture() {
+            document.getElementById('content').innerHTML = `
+                <div class="card">
+                    <div class="card-title">🌿 Colture Attive</div>
+                    <form id="formColtura" class="form-grid">
+                        <div class="form-group">
+                            <label>Nome</label>
+                            <input type="text" name="nome" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Varietà</label>
+                            <input type="text" name="varieta">
+                        </div>
+                        <div class="form-group">
+                            <label>Luogo</label>
+                            <select name="luogo" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Data Semina</label>
+                            <input type="date" name="semina" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Giorni Maturazione</label>
+                            <input type="number" name="giorni" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Inizio Raccolta</label>
+                            <input type="date" name="inizioRaccolta">
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: flex-end;">
+                            <button type="submit" class="btn btn-primary">Aggiungi Coltura</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome</th>
+                                    <th>Varietà</th>
+                                    <th>Luogo</th>
+                                    <th>Semina</th>
+                                    <th>Giorni</th>
+                                    <th>Raccolta Prevista</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${DB.colture.map((c, i) => `
+                                    <tr>
+                                        <td>${c.id}</td>
+                                        <td>${c.nome}</td>
+                                        <td>${c.varieta || '-'}</td>
+                                        <td>${c.luogo}</td>
+                                        <td>${formatDate(c.semina)}</td>
+                                        <td>${c.giorni}</td>
+                                        <td>${c.semina && c.giorni > 0 ? formatDate(addDays(c.semina, c.giorni)) : '-'}</td>
+                                        <td><button class="btn btn-danger btn-small" onclick="deleteColtura(${i})">🗑️</button></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            populateSelects();
+
+            document.getElementById('formColtura').onsubmit = (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                DB.colture.push({
+                    id: generateColturaId(),
+                    nome: formData.get('nome'),
+                    varieta: formData.get('varieta'),
+                    luogo: formData.get('luogo'),
+                    semina: formData.get('semina'),
+                    giorni: parseInt(formData.get('giorni')),
+                    inizioRaccolta: formData.get('inizioRaccolta')
+                });
+                saveDB();
+                populateSelects();
+                renderColture();
+                toast('Coltura aggiunta!', 'success');
+            };
+        }
+
+        function deleteColtura(index) {
+            showModal('Conferma', `Eliminare la coltura "${DB.colture[index].nome}"?`, () => {
+                DB.colture.splice(index, 1);
+                saveDB();
+                populateSelects();
+                renderColture();
+                toast('Coltura eliminata', 'info');
+            });
+        }
+
+        // ============ PRODOTTI ============
+        function renderProdotti() {
+            document.getElementById('content').innerHTML = `
+                <div class="card">
+                    <div class="card-title">🧪 Prodotti Base</div>
+                    <form id="formProdotto" class="form-grid">
+                        <div class="form-group">
+                            <label>Nome Prodotto</label>
+                            <input type="text" name="nome" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Principio Attivo</label>
+                            <input type="text" name="principio" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo</label>
+                            <select name="tipo" required>
+                                <option value="">Seleziona...</option>
+                                <option value="Fungicida">Fungicida</option>
+                                <option value="Insetticida">Insetticida</option>
+                                <option value="Mix">Mix</option>
+                                <option value="Erbicida">Erbicida</option>
+                                <option value="Altro">Altro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Carenza (giorni)</label>
+                            <input type="number" name="carenza" min="0" required>
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: flex-end;">
+                            <button type="submit" class="btn btn-primary">Aggiungi Prodotto</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Principio Attivo</th>
+                                    <th>Tipo</th>
+                                    <th>Carenza (gg)</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${DB.prodotti.map((p, i) => `
+                                    <tr>
+                                        <td>${p.nome}</td>
+                                        <td>${p.principio}</td>
+                                        <td>${p.tipo}</td>
+                                        <td>${p.carenza}</td>
+                                        <td><button class="btn btn-danger btn-small" onclick="deleteProdotto(${i})">🗑️</button></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('formProdotto').onsubmit = (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                DB.prodotti.push({
+                    nome: formData.get('nome'),
+                    principio: formData.get('principio'),
+                    tipo: formData.get('tipo'),
+                    carenza: parseInt(formData.get('carenza'))
+                });
+                saveDB();
+                renderProdotti();
+                toast('Prodotto aggiunto!', 'success');
+            };
+        }
+
+        function deleteProdotto(index) {
+            showModal('Conferma', `Eliminare il prodotto "${DB.prodotti[index].nome}"?`, () => {
+                DB.prodotti.splice(index, 1);
+                saveDB();
+                renderProdotti();
+                toast('Prodotto eliminato', 'info');
+            });
+        }
+
+        // ============ RICETTE ============
+        let ricettaComponenti = [];
+
+        function renderRicette() {
+            ricettaComponenti = [];
+            document.getElementById('content').innerHTML = `
+                <div class="card">
+                    <div class="card-title">📝 Ricette</div>
+                    <form id="formRicetta">
+                        <div class="form-group mb-1">
+                            <label>Nome Ricetta</label>
+                            <input type="text" name="nome" required>
+                        </div>
+                        <div id="ricettaComponentiContainer"></div>
+                        <button type="button" class="btn btn-info btn-small mb-1" onclick="addRicettaComponente()">+ Aggiungi Prodotto</button>
+                        <button type="submit" class="btn btn-primary">Salva Ricetta</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Componenti</th>
+                                    <th>Carenza MAX</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${DB.ricette.map((r, i) => {
+                                    const maxCarenza = Math.max(...r.componenti.map(c => {
+                                        const p = DB.prodotti.find(pr => pr.nome === c.prodotto);
+                                        return p ? p.carenza : 0;
+                                    }));
+                                    const compStr = r.componenti.map(c => `${c.prodotto} (${c.dose}g/L)`).join(', ');
+                                    return `
+                                        <tr>
+                                            <td>${r.nome}</td>
+                                            <td>${compStr}</td>
+                                            <td>${maxCarenza} gg</td>
+                                            <td><button class="btn btn-danger btn-small" onclick="deleteRicetta(${i})">🗑️</button></td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('formRicetta').onsubmit = (e) => {
+                e.preventDefault();
+                const nome = e.target.nome.value.trim();
+                if (ricettaComponenti.length === 0) {
+                    toast('Aggiungi almeno un prodotto', 'error');
+                    return;
+                }
+                DB.ricette.push({ nome, componenti: [...ricettaComponenti] });
+                saveDB();
+                renderRicette();
+                toast('Ricetta salvata!', 'success');
+            };
+        }
+
+        function addRicettaComponente() {
+            if (ricettaComponenti.length >= 7) {
+                toast('Massimo 7 prodotti per ricetta', 'error');
+                return;
+            }
+            ricettaComponenti.push({ prodotto: '', dose: 0 });
+            updateRicettaComponenti();
+        }
+
+        function removeRicettaComponente(index) {
+            ricettaComponenti.splice(index, 1);
+            updateRicettaComponenti();
+        }
+
+        function updateRicettaComponenti() {
+            const container = document.getElementById('ricettaComponentiContainer');
+            container.innerHTML = ricettaComponenti.map((c, i) => `
+                <div class="dynamic-row">
+                    <div class="form-group">
+                        <label>Prodotto</label>
+                        <select onchange="ricettaComponenti[${i}].prodotto = this.value">
+                            <option value="">Seleziona...</option>
+                            ${DB.prodotti.map(p => `<option value="${p.nome}" ${c.prodotto === p.nome ? 'selected' : ''}>${p.nome}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Dose (g/L)</label>
+                        <input type="number" step="0.1" value="${c.dose}" onchange="ricettaComponenti[${i}].dose = parseFloat(this.value)">
+                    </div>
+                    <button type="button" class="btn btn-danger btn-small" onclick="removeRicettaComponente(${i})">🗑️</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteRicetta(index) {
+            showModal('Conferma', `Eliminare la ricetta "${DB.ricette[index].nome}"?`, () => {
+                DB.ricette.splice(index, 1);
+                saveDB();
+                renderRicette();
+                toast('Ricetta eliminata', 'info');
+            });
+        }
+
+        // ============ TRATTAMENTI ============
+        function renderTrattamenti() {
+            document.getElementById('content').innerHTML = `
+                <div class="card">
+                    <div class="card-title">💉 Trattamenti</div>
+                    <form id="formTrattamento" class="form-grid">
+                        <div class="form-group">
+                            <label>Data</label>
+                            <input type="date" name="data" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Coltura</label>
+                            <select name="coltura" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo</label>
+                            <select name="tipo" id="trattamentoTipo" required>
+                                <option value="">Seleziona...</option>
+                                <option value="Prodotto">Prodotto</option>
+                                <option value="Ricetta">Ricetta</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Prodotto/Ricetta</label>
+                            <select name="prodotto" id="trattamentoProdotto" required>
+                                <option value="">Seleziona tipo prima...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Motivo</label>
+                            <input type="text" name="motivo" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Operatore</label>
+                            <input type="text" name="operatore" required>
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: flex-end;">
+                            <button type="submit" class="btn btn-primary">Aggiungi Trattamento</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Data</th>
+                                    <th>Coltura</th>
+                                    <th>Tipo</th>
+                                    <th>Prodotto</th>
+                                    <th>Motivo</th>
+                                    <th>Operatore</th>
+                                    <th>Fine Carenza</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${DB.trattamenti.sort((a, b) => b.data.localeCompare(a.data)).map((t, i) => {
+                                    let carenza = 0;
+                                    if (t.tipo === 'Prodotto') {
+                                        const prod = DB.prodotti.find(p => p.nome === t.prodotto);
+                                        if (prod) carenza = prod.carenza;
+                                    } else {
+                                        const ric = DB.ricette.find(r => r.nome === t.prodotto);
+                                        if (ric) {
+                                            carenza = Math.max(...ric.componenti.map(c => {
+                                                const p = DB.prodotti.find(pr => pr.nome === c.prodotto);
+                                                return p ? p.carenza : 0;
+                                            }));
+                                        }
+                                    }
+                                    const fineCarenza = addDays(t.data, carenza);
+                                    const badgeClass = isDateInFuture(fineCarenza) ? 'badge-danger' : 'badge-success';
+                                    return `
+                                        <tr>
+                                            <td>${t.num || i + 1}</td>
+                                            <td>${formatDate(t.data)}</td>
+                                            <td>${t.coltura}</td>
+                                            <td>${t.tipo}</td>
+                                            <td>${t.prodotto}</td>
+                                            <td>${t.motivo}</td>
+                                            <td>${t.operatore}</td>
+                                            <td><span class="badge ${badgeClass}">${formatDate(fineCarenza)}</span></td>
+                                            <td><button class="btn btn-danger btn-small" onclick="deleteTrattamento(${i})">🗑️</button></td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            populateSelects();
+
+            document.getElementById('trattamentoTipo').onchange = function() {
+                const select = document.getElementById('trattamentoProdotto');
+                if (this.value === 'Prodotto') {
+                    select.innerHTML = '<option value="">Seleziona...</option>' +
+                        DB.prodotti.map(p => `<option value="${p.nome}">${p.nome}</option>`).join('');
+                } else if (this.value === 'Ricetta') {
+                    select.innerHTML = '<option value="">Seleziona...</option>' +
+                        DB.ricette.map(r => `<option value="${r.nome}">${r.nome}</option>`).join('');
+                } else {
+                    select.innerHTML = '<option value="">Seleziona tipo prima...</option>';
+                }
+            };
+
+            document.getElementById('formTrattamento').onsubmit = (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const maxNum = DB.trattamenti.reduce((max, t) => Math.max(max, t.num || 0), 0);
+                DB.trattamenti.push({
+                    data: formData.get('data'),
+                    num: maxNum + 1,
+                    coltura: formData.get('coltura'),
+                    prodotto: formData.get('prodotto'),
+                    motivo: formData.get('motivo'),
+                    tipo: formData.get('tipo'),
+                    operatore: formData.get('operatore')
+                });
+                saveDB();
+                renderTrattamenti();
+                toast('Trattamento aggiunto!', 'success');
+            };
+        }
+
+        function deleteTrattamento(index) {
+            showModal('Conferma', 'Eliminare questo trattamento?', () => {
+                const sorted = DB.trattamenti.sort((a, b) => b.data.localeCompare(a.data));
+                const realIndex = DB.trattamenti.indexOf(sorted[index]);
+                DB.trattamenti.splice(realIndex, 1);
+                saveDB();
+                renderTrattamenti();
+                toast('Trattamento eliminato', 'info');
+            });
+        }
+
+        // ============ TRATTAMENTO RAPIDO ============
+        function renderTrattamentoRapido() {
+            const today = new Date().toISOString().split('T')[0];
+            
+            document.getElementById('content').innerHTML = `
+                <div class="card">
+                    <div class="card-title">⚡ Trattamento Rapido</div>
+                    <form id="formRapido" class="form-grid">
+                        <div class="form-group">
+                            <label>Data</label>
+                            <input type="date" name="data" value="${today}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo</label>
+                            <select name="tipo" id="rapidoTipo" required>
+                                <option value="">Seleziona...</option>
+                                <option value="Prodotto">Prodotto</option>
+                                <option value="Ricetta">Ricetta</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Prodotto/Ricetta</label>
+                            <select name="prodotto" id="rapidoProdotto" required>
+                                <option value="">Seleziona tipo prima...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Motivo</label>
+                            <input type="text" name="motivo" value="prevenzione" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Operatore</label>
+                            <input type="text" name="operatore" value="martina" required>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="flex justify-between align-center mb-1">
+                        <div class="card-title" style="margin: 0;">Seleziona Colture</div>
+                        <button class="btn btn-info btn-small" onclick="toggleSelectAll()">Seleziona Tutte</button>
+                    </div>
+                    <div class="checkbox-grid" id="coltureGrid"></div>
+                    <button class="btn btn-primary" onclick="eseguiTrattamentoRapido()">⚡ Esegui Trattamento</button>
+                </div>
+            `;
+
+            renderColtureCheckboxes();
+
+            document.getElementById('rapidoTipo').onchange = function() {
+                const select = document.getElementById('rapidoProdotto');
+                if (this.value === 'Prodotto') {
+                    select.innerHTML = '<option value="">Seleziona...</option>' +
+                        DB.prodotti.map(p => `<option value="${p.nome}">${p.nome}</option>`).join('');
+                } else if (this.value === 'Ricetta') {
+                    select.innerHTML = '<option value="">Seleziona...</option>' +
+                        DB.ricette.map(r => `<option value="${r.nome}">${r.nome}</option>`).join('');
+                } else {
+                    select.innerHTML = '<option value="">Seleziona tipo prima...</option>';
+                }
+            };
+        }
+
+        let selectedColture = new Set();
+
+        function renderColtureCheckboxes() {
+            const grid = document.getElementById('coltureGrid');
+            grid.innerHTML = DB.colture.map((c, i) => `
+                <div class="checkbox-item ${selectedColture.has(c.nome) ? 'checked' : ''}" onclick="toggleColtura('${c.nome}')">
+                    <input type="checkbox" id="col_${i}" ${selectedColture.has(c.nome) ? 'checked' : ''} style="margin-right: 0.5rem;">
+                    <label for="col_${i}" style="cursor: pointer;">${c.nome} - ${c.varieta || 'N/A'}</label>
+                </div>
+            `).join('');
+        }
+
+        function toggleColtura(nome) {
+            if (selectedColture.has(nome)) {
+                selectedColture.delete(nome);
+            } else {
+                selectedColture.add(nome);
+            }
+            renderColtureCheckboxes();
+        }
+
+        function toggleSelectAll() {
+            if (selectedColture.size === DB.colture.length) {
+                selectedColture.clear();
+            } else {
+                DB.colture.forEach(c => selectedColture.add(c.nome));
+            }
+            renderColtureCheckboxes();
+        }
+
+        function eseguiTrattamentoRapido() {
+            const form = document.getElementById('formRapido');
+            const formData = new FormData(form);
+            
+            if (!formData.get('tipo') || !formData.get('prodotto')) {
+                toast('Compila tutti i campi', 'error');
+                return;
+            }
+
+            if (selectedColture.size === 0) {
+                toast('Seleziona almeno una coltura', 'error');
+                return;
+            }
+
+            const maxNum = DB.trattamenti.reduce((max, t) => Math.max(max, t.num || 0), 0);
+            let count = 0;
+
+            selectedColture.forEach(coltura => {
+                DB.trattamenti.push({
+                    data: formData.get('data'),
+                    num: maxNum + 1 + count,
+                    coltura: coltura,
+                    prodotto: formData.get('prodotto'),
+                    motivo: formData.get('motivo'),
+                    tipo: formData.get('tipo'),
+                    operatore: formData.get('operatore')
+                });
+                count++;
+            });
+
+            saveDB();
+            selectedColture.clear();
+            toast(`${count} trattamenti aggiunti!`, 'success');
+            renderTrattamentoRapido();
+        }
+
+        // ============ REGISTRO GIORNALIERO ============
+        function renderRegistro() {
+            document.getElementById('content').innerHTML = `
+                <div class="card">
+                    <div class="card-title">📋 Registro Giornaliero</div>
+                    <form id="formRegistro" class="form-grid">
+                        <div class="form-group">
+                            <label>Data</label>
+                            <input type="date" name="data" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Coltura</label>
+                            <select name="coltura" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo Attività</label>
+                            <select name="tipo" required>
+                                <option value="">Seleziona...</option>
+                                <option value="Semina">Semina</option>
+                                <option value="Irrigazione">Irrigazione</option>
+                                <option value="Potatura">Potatura</option>
+                                <option value="Diserbo">Diserbo</option>
+                                <option value="Trapianto">Trapianto</option>
+                                <option value="Raccolta">Raccolta</option>
+                                <option value="Manutenzione">Manutenzione</option>
+                                <option value="Altro">Altro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Ore</label>
+                            <input type="number" name="ore" step="0.5" min="0" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Descrizione</label>
+                            <textarea name="descrizione" required></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Note</label>
+                            <textarea name="note"></textarea>
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: flex-end;">
+                            <button type="submit" class="btn btn-primary">Aggiungi Registrazione</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Coltura</th>
+                                    <th>Tipo</th>
+                                    <th>Descrizione</th>
+                                    <th>Ore</th>
+                                    <th>Note</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${DB.registro.sort((a, b) => b.data.localeCompare(a.data)).map((r, i) => `
+                                    <tr>
+                                        <td>${formatDate(r.data)}</td>
+                                        <td>${r.coltura}</td>
+                                        <td>${r.tipo}</td>
+                                        <td>${r.descrizione}</td>
+                                        <td>${r.ore}</td>
+                                        <td>${r.note || '-'}</td>
+                                        <td><button class="btn btn-danger btn-small" onclick="deleteRegistro(${i})">🗑️</button></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            populateSelects();
+
+            document.getElementById('formRegistro').onsubmit = (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                DB.registro.push({
+                    data: formData.get('data'),
+                    coltura: formData.get('coltura'),
+                    tipo: formData.get('tipo'),
+                    descrizione: formData.get('descrizione'),
+                    ore: parseFloat(formData.get('ore')),
+                    note: formData.get('note')
+                });
+                saveDB();
+                renderRegistro();
+                toast('Registrazione aggiunta!', 'success');
+            };
+        }
+
+        function deleteRegistro(index) {
+            showModal('Conferma', 'Eliminare questa registrazione?', () => {
+                const sorted = DB.registro.sort((a, b) => b.data.localeCompare(a.data));
+                const realIndex = DB.registro.indexOf(sorted[index]);
+                DB.registro.splice(realIndex, 1);
+                saveDB();
+                renderRegistro();
+                toast('Registrazione eliminata', 'info');
+            });
+        }
+
+        // ============ CONCIMAZIONI ============
+        function renderConcimazioni() {
+            document.getElementById('content').innerHTML = `
+                <div class="card">
+                    <div class="card-title">🌾 Concimazioni</div>
+                    <form id="formConcimazione" class="form-grid">
+                        <div class="form-group">
+                            <label>Data</label>
+                            <input type="date" name="data" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Coltura</label>
+                            <select name="coltura" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Concime</label>
+                            <input type="text" name="prodotto" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Quantità (kg)</label>
+                            <input type="number" name="quantita" step="0.1" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Metodo</label>
+                            <select name="metodo" required>
+                                <option value="">Seleziona...</option>
+                                <option value="Incorporamento">Incorporamento</option>
+                                <option value="Distribuzione superficiale">Distribuzione superficiale</option>
+                                <option value="Fertirrigazione">Fertirrigazione</option>
+                                <option value="Fogliare">Fogliare</option>
+                                <option value="Altro">Altro</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Note</label>
+                            <textarea name="note"></textarea>
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: flex-end;">
+                            <button type="submit" class="btn btn-primary">Aggiungi Concimazione</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Coltura</th>
+                                    <th>Concime</th>
+                                    <th>Quantità (kg)</th>
+                                    <th>Metodo</th>
+                                    <th>Note</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${DB.concimazioni.sort((a, b) => b.data.localeCompare(a.data)).map((c, i) => `
+                                    <tr>
+                                        <td>${formatDate(c.data)}</td>
+                                        <td>${c.coltura}</td>
+                                        <td>${c.prodotto}</td>
+                                        <td>${c.quantita}</td>
+                                        <td>${c.metodo}</td>
+                                        <td>${c.note || '-'}</td>
+                                        <td><button class="btn btn-danger btn-small" onclick="deleteConcimazione(${i})">🗑️</button></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            populateSelects();
+
+            document.getElementById('formConcimazione').onsubmit = (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                DB.concimazioni.push({
+                    data: formData.get('data'),
+                    coltura: formData.get('coltura'),
+                    prodotto: formData.get('prodotto'),
+                    quantita: parseFloat(formData.get('quantita')),
+                    metodo: formData.get('metodo'),
+                    note: formData.get('note')
+                });
+                saveDB();
+                renderConcimazioni();
+                toast('Concimazione aggiunta!', 'success');
+            };
+        }
+
+        function deleteConcimazione(index) {
+            showModal('Conferma', 'Eliminare questa concimazione?', () => {
+                const sorted = DB.concimazioni.sort((a, b) => b.data.localeCompare(a.data));
+                const realIndex = DB.concimazioni.indexOf(sorted[index]);
+                DB.concimazioni.splice(realIndex, 1);
+                saveDB();
+                renderConcimazioni();
+                toast('Concimazione eliminata', 'info');
+            });
+        }
+
+        // ============ RACCOLTO ============
+        function renderRaccolto() {
+            document.getElementById('content').innerHTML = `
+                <div class="card">
+                    <div class="card-title">🧺 Raccolto</div>
+                    <form id="formRaccolto" class="form-grid">
+                        <div class="form-group">
+                            <label>Data</label>
+                            <input type="date" name="data" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Coltura</label>
+                            <select name="coltura" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Peso (kg)</label>
+                            <input type="number" name="peso" step="0.1" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Destinazione</label>
+                            <select name="destinazione" required>
+                                <option value="">Seleziona...</option>
+                                <option value="Mercato">Mercato</option>
+                                <option value="Vendita diretta">Vendita diretta</option>
+                                <option value="Autoconsumo">Autoconsumo</option>
+                                <option value="GDO">GDO</option>
+                                <option value="Altro">Altro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Prezzo (€/kg)</label>
+                            <input type="number" name="prezzo" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Note</label>
+                            <textarea name="note"></textarea>
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: flex-end;">
+                            <button type="submit" class="btn btn-primary">Aggiungi Raccolto</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Coltura</th>
+                                    <th>Peso (kg)</th>
+                                    <th>Destinazione</th>
+                                    <th>Prezzo (€/kg)</th>
+                                    <th>Ricavo (€)</th>
+                                    <th>Note</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${DB.raccolto.sort((a, b) => b.data.localeCompare(a.data)).map((r, i) => {
+                                    const ricavo = r.peso * r.prezzo;
+                                    return `
+                                        <tr>
+                                            <td>${formatDate(r.data)}</td>
+                                            <td>${r.coltura}</td>
+                                            <td>${r.peso}</td>
+                                            <td>${r.destinazione}</td>
+                                            <td>${r.prezzo.toFixed(2)}</td>
+                                            <td><strong>€${ricavo.toFixed(2)}</strong></td>
+                                            <td>${r.note || '-'}</td>
+                                            <td><button class="btn btn-danger btn-small" onclick="deleteRaccolto(${i})">🗑️</button></td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            populateSelects();
+
+            document.getElementById('formRaccolto').onsubmit = (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                DB.raccolto.push({
+                    data: formData.get('data'),
+                    coltura: formData.get('coltura'),
+                    peso: parseFloat(formData.get('peso')),
+                    destinazione: formData.get('destinazione'),
+                    prezzo: parseFloat(formData.get('prezzo')),
+                    note: formData.get('note')
+                });
+                saveDB();
+                renderRaccolto();
+                toast('Raccolto aggiunto!', 'success');
+            };
+        }
+
+        function deleteRaccolto(index) {
+            showModal('Conferma', 'Eliminare questo raccolto?', () => {
+                const sorted = DB.raccolto.sort((a, b) => b.data.localeCompare(a.data));
+                const realIndex = DB.raccolto.indexOf(sorted[index]);
+                DB.raccolto.splice(realIndex, 1);
+                saveDB();
+                renderRaccolto();
+                toast('Raccolto eliminato', 'info');
+            });
+        }
+
+        // ============ RIEPILOGO ============
+        function renderRiepilogo() {
+            const riepilogo = {};
+            
+            DB.colture.forEach(c => {
+                riepilogo[c.nome] = {
+                    kg: 0,
+                    trattamenti: 0,
+                    concimazioni: 0,
+                    ore: 0,
+                    ricavo: 0
+                };
+            });
+
+            DB.raccolto.forEach(r => {
+                if (riepilogo[r.coltura]) {
+                    riepilogo[r.coltura].kg += r.peso;
+                    riepilogo[r.coltura].ricavo += r.peso * r.prezzo;
+                }
+            });
+
+            DB.trattamenti.forEach(t => {
+                if (riepilogo[t.coltura]) {
+                    riepilogo[t.coltura].trattamenti++;
+                }
+            });
+
+            DB.concimazioni.forEach(c => {
+                if (riepilogo[c.coltura]) {
+                    riepilogo[c.coltura].concimazioni++;
+                }
+            });
+
+            DB.registro.forEach(r => {
+                if (riepilogo[r.coltura]) {
+                    riepilogo[r.coltura].ore += r.ore;
+                }
+            });
+
+            document.getElementById('content').innerHTML = `
+                <div class="card">
+                    <div class="card-title">📈 Riepilogo per Coltura</div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Coltura</th>
+                                    <th>Tot. Kg</th>
+                                    <th>N° Trattamenti</th>
+                                    <th>N° Concimazioni</th>
+                                    <th>Ore Lavoro</th>
+                                    <th>Ricavo (€)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${Object.entries(riepilogo).map(([nome, dati]) => `
+                                    <tr>
+                                        <td><strong>${nome}</strong></td>
+                                        <td>${dati.kg.toFixed(1)}</td>
+                                        <td>${dati.trattamenti}</td>
+                                        <td>${dati.concimazioni}</td>
+                                        <td>${dati.ore.toFixed(1)}</td>
+                                        <td><strong>€${dati.ricavo.toFixed(2)}</strong></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ============ IMPOSTAZIONI ============
+        function renderImpostazioni() {
+            document.getElementById('content').innerHTML = `
+                <div class="card" style="background: #e3f2fd; border-left: 4px solid var(--blu);">
+                    <div class="card-title">☁️ Cloud Sync - JSONBin.io</div>
+                    <div class="info-box">
+                        <p><strong>Istruzioni:</strong></p>
+                        <ol>
+                            <li>Vai su <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> e crea un account gratuito</li>
+                            <li>Copia la tua X-Master-Key dalla dashboard</li>
+                            <li>Incollala nel campo qui sotto e clicca "Connetti"</li>
+                        </ol>
+                    </div>
+                    
+                    ${cloudConfig ? `
+                        <div style="background: #e8f5e9; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+                            <p><strong>✓ Cloud connesso</strong></p>
+                            ${cloudConfig.binId ? `<p style="font-size: 0.9rem; color: var(--grigio);">Bin ID: ${cloudConfig.binId}</p>` : ''}
+                        </div>
+                        <div class="flex gap-1">
+                            <button class="btn btn-info" onclick="pushToCloud()">⬆️ Carica su Cloud</button>
+                            <button class="btn btn-info" onclick="pullFromCloud()">⬇️ Scarica dal Cloud</button>
+                            <button class="btn btn-danger" onclick="disconnectCloud()">Disconnetti</button>
+                        </div>
+                    ` : `
+                        <div class="form-group mb-1">
+                            <label>X-Master-Key (API Key)</label>
+                            <input type="password" id="cloudApiKey" placeholder="$2a$10...">
+                        </div>
+                        <button class="btn btn-primary" onclick="connectCloudFromInput()">🔌 Connetti Cloud</button>
+                    `}
+                </div>
+
+                <div class="card">
+                    <div class="card-title">💾 Gestione Dati</div>
+                    <div class="flex gap-1">
+                        <button class="btn btn-primary" onclick="exportJSON()">📥 Esporta JSON</button>
+                        <button class="btn btn-primary" onclick="document.getElementById('importFile').click()">📤 Importa JSON</button>
+                        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importJSON(this.files[0])">
+                        <button class="btn btn-danger" onclick="resetAll()">🗑️ Cancella Tutto</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">ℹ️ Informazioni</div>
+                    <p><strong>Registro Orticolo v2.0</strong></p>
+                    <p>Applicazione per la gestione del registro orticolo con persistenza locale e cloud sync.</p>
+                    <p style="margin-top: 1rem; color: var(--grigio); font-size: 0.9rem;">
+                        I dati sono salvati automaticamente nel browser (localStorage).
+                        Attiva il cloud sync per backup automatici su JSONBin.io.
+                    </p>
+                </div>
+            `;
+        }
+
+        function connectCloudFromInput() {
+            const apiKey = document.getElementById('cloudApiKey').value.trim();
+            if (!apiKey) {
+                toast('Inserisci la tua API Key', 'error');
+                return;
+            }
+            connectCloud(apiKey);
+            setTimeout(() => renderImpostazioni(), 1000);
+        }
+
+        // ============ INIT ============
+        function init() {
+            loadDB();
+            loadCloudConfig();
+            
+            // Setup navigation
+            document.querySelectorAll('.nav-item, .bottom-nav-item').forEach(el => {
+                el.addEventListener('click', () => {
+                    const page = el.getAttribute('data-page');
+                    navigateTo(page);
+                });
+            });
+
+            // Initial render
+            navigateTo('dashboard');
+            populateSelects();
+        }
+
+        // Start app
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
